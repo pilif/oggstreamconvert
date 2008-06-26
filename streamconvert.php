@@ -37,6 +37,7 @@ foreach($streams as $stream){
     }
     fclose($pipes[0]);
     fclose($pipes[1]);
+    proc_close($p);
     break; // leave if stream goes down.
 }
 // we'll never get down here I guess
