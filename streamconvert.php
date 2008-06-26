@@ -4,7 +4,7 @@ define('SOX_PATH', '/opt/sox/bin/sox');
 
 if ($_SERVER['PATH_INFO'] != '/stream'){
     header('Content-Type: audio/x-mpegurl');
-    echo $_SERVER['SCRIPT_NAME'].'/stream';
+    echo 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'/stream';
     exit;
 }
 
