@@ -49,15 +49,45 @@ $opts = array(
 
 $context = stream_context_create($opts);
 
-if (preg_match('#\.(m3u|pls)$#', $_GET['url'])){
-    $streams = file($_GET['url'], false, $context);
-    foreach($streams as $url) convertStream($url, $context);
-}else{
-    convertStream($_GET['url'], $context);
+$fh = fopen($_GET['url'], 'r', false, $context);
+$header = array();
+foreach($http_response_header as $line){
+    list($name, $content) = explode(': ', $line, 2);
+    $header[strtolower($name)] = $content;
 }
 
-function convertStream($url, $context){
+switch($header['content-type']){
+    case 'audio/x-mpegurl':
+        $streams = fetchStreams($fh);
+        fclose($fh);
+        foreach($streams as $url) convertStreamUrl($url, $context);
+        break;
+    case 'application/ogg': 
+        convertStream($fh);
+        break;
+    default: 
+        header('Content-Type: text/plain');
+        die("Server returned unknown Content-Type: ".$header['content-type']);
+}
+
+function fetchStreams($fh){
+    $streams = array();
+    while (!feof($fh)){
+        $line = trim(fgets($fh));
+        if (empty($line)) continue; // skip empty lines
+        if (preg_match('%^\s*#%', $line)) continue; // skip comments
+        $streams[] = $line;
+    }
+    return $streams;
+}
+
+function convertStreamUrl($url, $context){
     if ( ($fh = fopen(trim($url), 'r', false, $context)) === false) return false;
+    convertStream($fh); // never returns
+    return true;
+}
+
+function convertStream($fh){
     $descspec = array( 0 => array('pipe', 'r'),
                        1 => array('pipe', 'w'),
                        2 => array('file', '/tmp/oggerr.log', 'a')
