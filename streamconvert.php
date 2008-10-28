@@ -19,9 +19,16 @@
    http://yourserver/oggconvert.php?url=http://ormgas.rainwave.cc/ormgas.m3u&play=1
   
    to make the script start do the conversion.
+   
+   The script looks at the content-type returned from the server after fetching
+   the document the url= parameter is pointing to. If it was a playlist, it
+   will try to convert any stream pointed to by the playlist. If it was
+   the ogg stream itself, it'll just convert that.
 
-   If the url= parameter ends in .m3u or .pls, the script will assume the
-   url to be a playlist itself and will follow any url contained therein.
+   In any other case, it bails out with an error message.
+   
+   In laymans terms this means that you can just put any URL remotely related
+   to an ogg stream after the url= and the script will try to do the right thing.
 
    The script is (c) 2008 by Philip Hofstetter and licensed under the MIT license.
    Any questions can be directed to pilif@gnegg.ch
